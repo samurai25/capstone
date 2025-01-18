@@ -20,6 +20,7 @@ jobs:
         pip install django
         pip install python-dotenv
         pip install django-cors-headers
+        pip install Pillow
 
     - name: Run tests
       run: |
