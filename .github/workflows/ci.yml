@@ -1,12 +1,25 @@
 name: Testing
-on: push
+
+on: [push, pull_request]
 
 jobs:
-  test_project:
+  build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
-    - name: Run Django unit tests
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
       run: |
-        pip3 install --user django
-        python3 manage.py test
+        python -m pip install --upgrade pip
+        pip install django
+        pip install python-dotenv
+
+    - name: Run tests
+      run: |
+        python manage.py test
