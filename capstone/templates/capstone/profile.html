@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="header"></div>
+    
+    <div id="app"></div>
+
+    <script type="text/babel">
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+
+        function DjangoCSRFToken() {
+            return (
+                <input type="hidden" name="csrfmiddlewaretoken" value={csrftoken} />
+            );
+        };
+
+
+        function Profile(props) {
+
+            return (
+                <div class="profile_container">
+                    <div>
+                        <img src={'/media/' + props.profile_picture} alt='profile-picture' className="profile_picture"/>
+                    </div>
+                    <ul>
+                        <li><strong>Login:</strong> {{user.username}}</li>
+                        <li><strong >First name:</strong> <span id="first_name">{props.first_name}</span></li>
+                        <li><strong>Last name:</strong> <span id="last_name">{props.last_name}</span></li>
+                    </ul>
+                    
+                    <h2>Contacts:</h2>
+                    <ul>
+                        <li><strong>GitHub:</strong> {props.github}</li>
+                        <li><strong>Phone Number:</strong> {props.phone_number}</li>
+                        <li><strong>Email:</strong> {props.email}</li>
+                    </ul>
+                    <h2>Bio:</h2>
+                    <p>{props.bio}</p>
+                    
+                    <h2>Skills:</h2>
+                    <ul>
+                        <li><strong>Frontend: </strong>{props.frontend}</li>
+                        <li><strong>Backend: </strong>{props.backend}</li>
+                        <li><strong>Databases: </strong>{props.database}</li>
+                    </ul>
+                </div>
+            );
+        }
+
+
+        function EditProfile(props) {
+            return (
+                <div>
+                    <h1>Edit Profile: {{user.username}}</h1>
+                    <div class="form-group">
+                        <label for="first name"><h4>First Name:</h4></label>
+                        <input defaultValue={props.first_name} onChange={props.handleChange} id="first_name" class="form-control" type="text" name="first_name" />
+                        <label for="last name"><h4>Last Name:</h4></label>
+                        <input defaultValue={props.last_name} onChange={props.handleChange} id="last_name" class="form-control" type="text" name="last_name" />
+                        <label for="profile picture"><h4>Profile Picture:</h4></label>
+                        <input onChange={props.handleChange} id="profile_picture" class="form-control" type="file" name="profile_picture" accept="image/*" />
+                        <h2>Contacts</h2>
+                        <label for="github"><strong>GitHub:</strong></label>
+                        <input defaultValue={props.github} onChange={props.handleChange} id="github" class="form-control" type="text" name="github" />
+                        <label for="phone-number"><strong>Phone Number:</strong></label>
+                        <input defaultValue={props.phone_number} onChange={props.handleChange} id="phone_number" class="form-control" type="tel" pattern="\d{3} \d{3} \d{4}" minlength="10" maxlength="10" name="phone-number" />
+                        <label for="bio"><h4>Bio:</h4></label>
+                        <textarea defaultValue={props.bio} onChange={props.handleChange} id="bio" class="form-control" name="bio"></textarea>
+                        <h2>Skills</h2>
+                        <label for="frontend"><strong>Frontend:</strong></label>
+                        <input defaultValue={props.frontend} onChange={props.handleChange} id="frontend" class="form-control" type="text" name="frontend" />
+                        <label for="backend"><strong>Backend:</strong></label>
+                        <input defaultValue={props.backend} onChange={props.handleChange} id="backend" class="form-control" type="text" name="backend" />
+                        <label for="database"><strong>Database:</strong></label>
+                        <input defaultValue={props.database} onChange={props.handleChange} id="database" class="form-control" type="text" name="database" />
+                        <input onClick={props.handleSaveClick} class="btn btn-primary form-control mt-3" type="submit" value="Save" />
+                    </div>
+                </div>
+            );
+        }
+
+
+        function App() {
+            const [profile, setProfile] = React.useState([]);
+            const [formData, setFormData] = React.useState({
+                first_name: '',
+                last_name: '',
+                github: '',
+                phone_number: '',
+                bio: '',
+                frontend: '',
+                backend: '',
+                database: '',
+                profile_picture: '',
+            });
+            const [profilePicture, setProfilePicture] = React.useState([]);
+
+
+            function handleChange(event) {
+     
+                if (event.target.id === 'first_name') {
+                    setFormData((prevState) => ({...prevState, first_name: event.target.value}));
+                }
+                else if (event.target.id === 'last_name') {
+                    setFormData((prevState) => ({...prevState, last_name: event.target.value}));
+                }
+                else if (event.target.id === 'github') {
+                    setFormData((prevState) => ({...prevState, github: event.target.value}));
+                }
+                else if (event.target.id === 'phone_number') {
+                    setFormData((prevState) => ({...prevState, phone_number: event.target.value}));
+                }
+                else if (event.target.id === 'bio') {
+                    setFormData((prevState) => ({...prevState, bio: event.target.value}));
+                }
+                else if (event.target.id === 'frontend') {
+                    setFormData((prevState) => ({...prevState, frontend: event.target.value}));
+                }
+                else if (event.target.id === 'backend') {
+                    setFormData((prevState) => ({...prevState, backend: event.target.value}));
+                }
+                else if (event.target.id === 'database') {
+                    setFormData((prevState) => ({...prevState, database: event.target.value}));
+                }
+                else if (event.target.id === 'profile_picture') {
+                    const img_url = event.target.files[0].name;
+                    console.log(event.target.files[0].name);
+                    setFormData((prevState) => ({...prevState, profile_picture: img_url}));
+                }
+                else {
+                    console.log('Invalid input field:', event.target.id);
+                }
+            };
+
+            console.log(formData);
+
+
+            const handleSaveClick = async (e) => {
+                if (e.target.value) {
+                    e.preventDefault();
+                    await postData();   
+                }
+            };
+
+            const postData = async () => {
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/save_profile/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                        },
+                        body: JSON.stringify(formData),
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        // Redirect to the new URL provided in the JSON response
+                        window.location.href = data.redirect_url;
+                    } else {
+                        // Handle error message
+                        alert(data.error_message);
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error saving profile. Please try again.');
+                }
+            };
+
+
+            React.useEffect(() => {
+                const fetchData = async () => {
+                    try {
+                        const response = await fetch('http://127.0.0.1:8000/fetch_profile/');
+                        const data = await response.json();
+                        setProfile(data);
+                        setFormData({
+                            first_name: data.first_name,
+                            last_name: data.last_name,
+                            email: data.email,
+                            github: data.github,
+                            phone_number: data.phone_number,
+                            bio: data.bio,
+                            frontend: data.frontend,
+                            backend: data.backend,
+                            database: data.database,
+                            profile_picture: data.profile_picture,
+                        });
+                    } catch (error) {
+                        console.error("Error fetching data:", error);
+                    }
+                };
+
+                fetchData();
+            }, []);
+
+
+            return (
+                <div class="profile-container">
+                    <h2><strong>My Profile</strong></h2>
+                    <Profile 
+                        first_name={profile.first_name}
+                        last_name={profile.last_name}
+                        github={profile.github}
+                        phone_number={profile.phone_number}
+                        email={profile.email}
+                        bio={profile.bio}
+                        frontend={profile.frontend}
+                        backend={profile.backend}
+                        database={profile.database}
+                        profile_picture={profile.profile_picture}
+                        />
+                    <a id="edit_profile" href="{% url 'capstone:edit_profile' %}"><strong>Edit Profile</strong></a>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.querySelector('#app'));
+    </script>
+
+{% endblock %}

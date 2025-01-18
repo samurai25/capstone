@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="header">
+        <h2>Contact</h2> 
+    </div>
+
+    <div class="contact_container">
+        <p>For any inquiries or requests, please contact me at:</p>
+        <div>
+            <ul>
+                <li><i class="bi bi-envelope"></i> <a href="mailto:{{ profile.email }}">{{ profile.email }}</a></li>
+                <li><i class="bi bi-phone-fill"></i> {{ profile.phone_number }}</li>
+                <li><i class="bi bi-github"></i> {{profile.github}}</li>
+            </ul>   
+        </div>
+    </div>
+    
+
+{% endblock %}

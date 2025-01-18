@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="header">
+    <h2>Add Project</h2>
+</div>
+
+<div class="form_container">
+    <form method="post" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" id="add_project" class="btn btn-primary">Add</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="header">
+        <h2>My Projects</h2>    
+    </div>
+
+    <div id="app"></div>
+
+    <script type="text/babel">
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+
+        function DjangoCSRFToken() {
+            return (
+                <input type="hidden" name="csrfmiddlewaretoken" value={csrftoken} />
+            );
+        };
+
+
+        function Project(props) {
+
+            const [isToggle, setIsToggle] = React.useState(false);
+            const [clickedProject, setClickedProject] = React.useState('');
+            const [isDelete, setIsDelete] = React.useState(false);
+
+            function handleDeleteClick(event) {
+
+                if (isDelete) {
+                    setIsDelete(false); 
+                    setClickedProject('');   
+                }
+                else {
+                    setIsDelete(true);
+                    setClickedProject(event.target.value);
+                }
+            }
+
+            function handleConfirmDeleteClick(event) {
+                event.preventDefault();
+                if (event.target.value !== 'no') {
+                    postData(event.target.value);
+                }
+                else {
+                    setIsDelete(false);
+                }
+                
+            }
+
+        
+            function handleToggleClick(event) {
+                console.log(event.target.value);
+                if (isToggle) {
+                    setIsToggle(false);
+                    setClickedProject('');
+                }
+                else {
+                    setIsToggle(true);
+                    setClickedProject(event.target.value);
+                }
+            }
+
+            const postData = async (id) => {
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/delete_project/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            project_id: id
+                        }),
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        // Redirect to the new URL provided in the JSON response
+                        window.location.href = data.redirect_url;
+                    } else {
+                        // Handle error message
+                        alert(data.error_message);
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.log('Error sending data:', error);
+                }
+            };
+
+            
+            return (
+
+                <div className="projects_container">
+                    {props.projects.map(project => (
+                            <div className="project" key={project.id}>
+                                <div className="delete">
+                                    <h3></h3>
+                                    {% if user.is_authenticated %}
+                                        <button onClick={handleDeleteClick} value={project.id} type="button" class="btn btn-danger btn-sm" title="Delete">X</button>
+                                        {isDelete && clickedProject == project.id ? 
+                                        <div id="div_delete">Delete the project?
+                                            <button onClick={handleConfirmDeleteClick} value={project.id} type="button" class="btn btn-primary btn-sm">Yes</button>
+                                            <button onClick={handleConfirmDeleteClick} value="no" type="button" class="btn btn-primary btn-sm">No</button>
+
+                                        </div> : null}
+                                    {% endif %}
+                                </div>
+
+                                <div id="project_div">
+                                    <a href={`/project/${project.id}`} className="project_link">{project.image ?
+                                        <div className="project_image_div">
+                                            <div> 
+                                                <img className="project_image" src={'/media/' + project.image} alt="project image" />
+                                            </div>
+                                            <div>
+                                                <p className="project_title">{project.title}</p>
+                                            </div>
+                                        </div>
+                                        : 
+                                        <div className="project_image_div">
+                                            <div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                                                    <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                                    <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="project_title">{project.title}</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    </a>
+                                </div>
+                            </div>
+                    ))}
+                </div>
+            );
+        }
+
+
+        const Pagination = ({ totalProjects, projectsPerPage, setCurrentPage, currentPage }) => {
+            let pages = [];
+
+
+            for (let i = 1; i <= Math.ceil(totalProjects.length / projectsPerPage); i++) {
+                pages.push(i);
+            }
+
+
+            return (
+                <div className="pagination">
+                    <button 
+                        type="button" 
+                        className="btn btn-light" 
+                        onClick={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : currentPage)} 
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </button>
+                    {pages.map((page, index) => {
+                        return <button key={index} type="button" className="btn btn-light" onClick={() => setCurrentPage(page)} className={page == currentPage ? "active" : "btn btn-light"}>{page}</button>
+                    })}
+
+                    <button 
+                    type="button" 
+                    className="btn btn-light" 
+                    onClick={() => setCurrentPage(currentPage < pages.length ? currentPage + 1 : currentPage)} 
+                    disabled={currentPage === pages.length}
+                    >
+                        Next
+                    </button>
+                </div>
+            );
+        };
+
+
+        function App() {
+
+            const [projects, setProjects] = React.useState([]);
+            const [search, setSearch] = React.useState([]);
+            const [filteredProjects, setFilteredProjects] = React.useState(false);
+            
+            const [currentPage, setCurrentPage] = React.useState(1);
+            const [projectsPerPage] = React.useState(4);
+
+
+            React.useEffect(() => {
+                const fetchData = async () => {
+                    try {
+                        const response = await fetch('http://127.0.0.1:8000/projects_fetch/');
+                        const data = await response.json();
+                        setProjects(data);
+                    } catch (error) {
+                        console.error("Error fetching data:", error);
+                    }
+                };
+
+                fetchData();
+            }, []);
+
+            console.log(projects);
+
+
+            const handleSearchClick = async (event) => {
+
+                if (search !== [] && search.length > 0) {
+                    // Filter projects based on search criteria
+                    const filteredProjects = projects.filter(project =>
+                        project.title.toLowerCase().includes(search.toLowerCase()) ||
+                        project.description.toLowerCase().includes(search.toLowerCase()) ||
+                        project.frontend.toLowerCase().includes(search.toLowerCase()) ||
+                        project.backend.toLowerCase().includes(search.toLowerCase()) ||
+                        project.database.toLowerCase().includes(search.toLowerCase())
+                    );
+
+                    if (filteredProjects.length > 0) {
+                        setFilteredProjects(filteredProjects);
+                        setSearch('');
+                    }
+                    else {
+                        console.error("No projects found matching the search criteria");
+                    }
+                }
+                else {
+                    console.error("Invalid event target");
+                    return;
+                }
+            }
+
+            function handleSearchChange(event) {
+                setSearch(event.target.value);
+
+            }
+
+            function handleKeyPress(event) {
+                if (event.key === 'Enter') {
+                    handleSearchClick(event);
+                }
+            }
+
+
+            const lastProjectIndex = currentPage * projectsPerPage;
+            const firstProjectIndex = lastProjectIndex - projectsPerPage;
+            const currentProjects = projects.slice(firstProjectIndex, lastProjectIndex);
+
+
+            return (
+                <div>
+                    <div className="search_div">
+                        <input onKeyPress={handleKeyPress} onChange={handleSearchChange} type="text" className="search" placeholder="Search" />
+                        <button type="button" onClick={handleSearchClick}>Search</button>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <div>
+                            <a id="add_project_link" href="{% url 'capstone:add_project' %}">+add project</a>
+                        </div>
+                    {% endif %}
+                    {filteredProjects ? 
+                        <div>
+                            <h3>Found Projects</h3>
+                            <Project projects={filteredProjects} />
+                        </div>    
+                    : 
+                        <div>
+                            <Project projects={currentProjects} />
+                            <Pagination 
+                                totalProjects={projects}
+                                projectsPerPage={projectsPerPage}
+                                setCurrentPage={setCurrentPage} 
+                                currentPage={currentPage}
+                            />
+                        </div>
+                    }
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.querySelector('#app'));
+    </script>
+    
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="header">
+        <h2>About Me</h2>   
+    </div>
+
+    <div class="about">
+        {% if profile %}
+            <div>
+                <img src="{{ profile.profile_picture.url }}" alt="{{ profile.first_name }}">
+            </div>
+            <div class="bio">
+                <p>Hi, I'm {{profile.first_name}} {{profile.last_name}}, a web developer from Ukraine.</p>
+                <p>{{profile.bio}}</p>
+                <div class="skills">
+                    <h4>My Skills</h4>
+                    <ul>
+                        <li><strong>Frontend: </strong>{{profile.frontend}}</li>
+                        <li><strong>Backend: </strong>{{profile.backend}}</li>
+                        <li><strong>Databases: </strong>{{profile.database}}</li>
+                    </ul>
+                </div>
+            </div>
+            
+        {% endif %}
+    </div>
+{% endblock %}
