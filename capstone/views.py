@@ -54,7 +54,7 @@ def about(request, username):
         
     return render(request, 'capstone/about.html', {'profile': profile})
     
-
+@login_required
 def projects(request, username):
 
     return render(request, 'capstone/projects.html')
@@ -74,12 +74,15 @@ def profile(request):
         return render(request, 'capstone/profile.html')
     return render(request, 'capstone/error.html')
 
-
+@login_required
 def projects_fetch(request):
+    user = request.user
+    if user.is_authenticated:
+        projects = Project.objects.filter(user=user).all().values().order_by('-created_at')
     
-    projects = Project.objects.filter(user=request.user).all().values().order_by('-created_at')
-    
-    return JsonResponse(list(projects), safe=False)
+        return JsonResponse(list(projects), safe=False)
+    else:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
 
 
 @login_required
@@ -132,10 +135,11 @@ def edit_project(request, project_id):
     else:
         return render(request, 'capstone/error.html')
 
-    
+@login_required   
 def fetch_profile(request):
-    if request.user.is_authenticated:
-        user = request.user
+    user = request.user
+    if user.is_authenticated:
+        
         profile = Profile.objects.get(pk=user.id)
         
         data = {
@@ -211,7 +215,7 @@ def add_project(request):
     else:
         return render(request, 'capstone/error.html')
     
-
+@login_required
 def project(request, project_id):
     if project_id:
         project = Project.objects.get(pk=project_id)

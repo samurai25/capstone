@@ -165,7 +165,9 @@
             const postData = async () => {
 
                 try {
-                    const response = await fetch('http://127.0.0.1:8000/save_profile/', {
+                    const baseUrl = window.location.hostname === "localhost" ? "http://localhost:8000" : "http://127.0.0.1:8000";
+
+                    const response = await fetch(`${baseUrl}/save_profile/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -193,7 +195,8 @@
             React.useEffect(() => {
                 const fetchData = async () => {
                     try {
-                        const response = await fetch('http://127.0.0.1:8000/fetch_profile/');
+                        const baseUrl = window.location.hostname === "localhost" ? "http://localhost:8000" : "http://127.0.0.1:8000";
+                        const response = await fetch(`${baseUrl}/fetch_profile/`);
                         const data = await response.json();
                         setProfile(data);
                         setFormData({
