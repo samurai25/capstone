@@ -14,15 +14,29 @@
                 <img src="{{ profile.profile_picture.url }}" alt="{{ profile.first_name }}">
             </div>
             <div class="bio">
-                <p>Hi, I'm {{profile.first_name}} {{profile.last_name}}, a web developer from Ukraine.</p>
+                <p>Hi, I'm {{profile.first_name}} {{profile.last_name}}, a {{profile.get_role_display}} from {{profile.country}}.</p>
                 <p>{{profile.bio}}</p>
                 <div class="skills">
                     <h4>My Skills</h4>
                     <ul>
-                        <li><strong>Frontend: </strong>{{profile.frontend}}</li>
-                        <li><strong>Backend: </strong>{{profile.backend}}</li>
-                        <li><strong>Databases: </strong>{{profile.database}}</li>
+                        {% if profile.frontend %}
+                            <li><strong>Frontend: </strong>{{profile.frontend}}</li>
+                        {% endif %}
+                        {% if profile.backend %}
+                            <li><strong>Backend: </strong>{{profile.backend}}</li>
+                        {% endif %}
+                        {% if profile.database %}
+                            <li><strong>Databases: </strong>{{profile.database}}</li>
+                        {% endif %}
                     </ul>
+                    {% if certificates %}
+                        <h4>Certificates: </h4>
+                        <ul>
+                            {% for certificate in certificates %}
+                                <li><strong>{{ certificate.url }}</strong></li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
             </div>
             

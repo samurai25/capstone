@@ -312,7 +312,7 @@ a:hover {
     background-color: rgb(239, 239, 239);
 }
 
-.form_container form input[type="text"], textarea, input[type="password"], input[type="email"] {
+.form_container form input[type="text"], #id_role, #id_link_to_live_demo, textarea, input[type="password"], input[type="email"] {
     border-radius: 3px;
     outline-color: var(--primary-color);
     border: 1px solid var(--light-color);
@@ -409,10 +409,11 @@ a:hover {
     border-radius: 10px;
     margin: 15px;
     background-color: var(--light-color);
+    box-shadow: var(--box-shadow);
 }
 
 .bio {
-    background-color: var(--dark-color);;
+    background-color: rgb(179, 179, 179);
     font-size: 18px;
     min-width: 400px;
     min-height: 400px;
@@ -422,8 +423,12 @@ a:hover {
     text-align: left;
     border-radius: 5px;
     padding: 10px;
-    color: rgb(194, 194, 194);
-    
+    color: rgb(112, 112, 112);
+    box-shadow: var(--box-shadow);
+}
+
+.bio ul li {
+    list-style-type: none;
 }
 
 
@@ -478,6 +483,22 @@ i {
     color: var(--primary-color);
 }
 
+.certificate {
+    color: var(--primary-color) !important;
+    font-size: 18px !important;
+}
+
+#email {
+    color: rgb(255, 88, 88);
+}
+
+#github {
+    color: rgb(78, 78, 78);
+}
+
+#linkedin {
+    color: rgb(55, 155, 255);
+}
 
 @media only screen and (max-width: 640px) {
     

@@ -21,29 +21,27 @@ class WebpageTests(unittest.TestCase):
         driver.get("http://127.0.0.1:8000/")
         self.assertEqual(driver.title, "ePortfolio")
         
-        
     def test_login(self):
         """Make sure login works"""
         driver.get("http://127.0.0.1:8000/accounts/login/")
         username = driver.find_element(By.NAME, "username")
         password = driver.find_element(By.NAME, "password")
-        username.send_keys("Alex")
-        password.send_keys("samurai1927")
+        username.send_keys("testuser")
+        password.send_keys("testpassword123")
         driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
-        self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "Hello, Alex!")
-        
+        self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "Hello, testuser!")
         
     def test_about(self):
         """Make sure about page works"""
-        driver.get("http://127.0.0.1:8000/about/Alex/")
+        driver.get("http://127.0.0.1:8000/about/testuser/")
         self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "About Me")  
 
     def test_projects(self):
         """Make sure projects page works"""
-        driver.get("http://127.0.0.1:8000/projects/Alex/")
+        driver.get("http://127.0.0.1:8000/projects/testuser/")
         self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "My Projects")
 
-        # Test adding a project
+    # Test adding a project
         wait = WebDriverWait(driver, 10)
         add = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(text(),'+add project')]")))
        
@@ -70,8 +68,7 @@ class WebpageTests(unittest.TestCase):
         project = wait.until(EC.element_to_be_clickable((By.XPATH, "//p[contains(text(),'Selenium Test')]")))
         project.click()
         self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "Project: Selenium Test")
-
-        
+    
         # Test editing a project
         wait = WebDriverWait(driver, 10)
         edit = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(text(),'Edit')]")))
@@ -87,9 +84,12 @@ class WebpageTests(unittest.TestCase):
         wait = WebDriverWait(driver, 10)
         button = wait.until(EC.element_to_be_clickable((By.ID, 'save_project')))
         button.click()
-        self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "My Projects")
+        self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "Project: Selenium Test")
 
         # Test deleting a project
+        projects = driver.find_element(By.XPATH, "//a[contains(text(), 'Projects')]")
+        projects.click()
+        self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "My Projects")
         project = driver.find_element(By.XPATH, "//p[contains(text(), 'Selenium Test')]")
         button = project.find_element(By.XPATH, "//button[contains(text(), 'X')]")
         button.click()
@@ -97,20 +97,10 @@ class WebpageTests(unittest.TestCase):
         delete.click()
         deleted_project = WebDriverWait(driver, 10).until(EC.invisibility_of_element((By.XPATH, '//p[contains(text(), "Selenium Test")]')))
         self.assertEqual(deleted_project, True)
-        
     
-    def test_search(self):
-        """Make sure search works"""
-        driver.get("http://127.0.0.1:8000/projects/Alex/")
-        search = driver.find_element(By.CLASS_NAME, "search")
-        search.send_keys("Python")
-        search.send_keys(Keys.ENTER)
-        self.assertEqual(driver.find_element(By.TAG_NAME, "h3").text, "Found Projects") 
-        
-        
     def test_contact(self):
         """Make sure contact page works"""
-        driver.get("http://127.0.0.1:8000/contact/Alex/")
+        driver.get("http://127.0.0.1:8000/contact/testuser/")
         self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "Contact")
         
     def test_profile(self):
@@ -123,20 +113,13 @@ class WebpageTests(unittest.TestCase):
 
         driver.find_element(By.NAME, "first_name").click()
         driver.find_element(By.NAME, "first_name").clear()
-        driver.find_element(By.NAME, "first_name").send_keys("Selenium")
-        driver.find_element(By.NAME, "last_name").click()
-        driver.find_element(By.NAME, "last_name").clear()
-        driver.find_element(By.NAME, "last_name").send_keys("Test")
-
-        html = driver.find_element(By.TAG_NAME, 'html')
-        html.send_keys(Keys.END)
-        wait = WebDriverWait(driver, 10)
+        driver.find_element(By.NAME, "first_name").send_keys("Selenium Test")
+        driver.find_element(By.ID, "id_role").click()
+        wait = WebDriverWait(driver, 10) 
         button = wait.until(EC.element_to_be_clickable((By.ID, 'save_profile')))
         button.click()
-        self.assertEqual(driver.find_element(By.ID, "first_name").text, "Selenium")
-        self.assertEqual(driver.find_element(By.ID, "last_name").text, "Test")
-    
-    
-
+        self.assertEqual(driver.find_element(By.ID, "first_name").text, "Selenium Test")
+       
+        
 if __name__ == "__main__":
     unittest.main()

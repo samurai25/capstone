@@ -10,9 +10,35 @@
 <div class="form_container">
 <form method="post" action="" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" id="save_profile" class="btn btn-primary">Save</button>
+    {{ form.as_p }} 
+    <button type="submit" name="save_profile" id="save_profile" class="btn btn-primary">Save</button>
 </form>
 </div>
 
+<h3>Add a New Certificate</h3>
+<div class="form_container">    
+    <form method="POST">
+        {% csrf_token %}
+        {{ certificate_form.as_p }}
+        <button type="submit" name="add_certificate" class="btn btn-primary">Add Certificate</button>
+    </form>
+</div>
+
+<h3>Your Certificates</h3>
+<div class="form_container">
+<ul class="list-group">
+    {% for certificate in certificates %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{{ certificate.url }}" target="_blank">{{ certificate.url }}</a>
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="certificate_id" value="{{ certificate.id }}">
+                <button type="submit" name="delete_certificate" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No certificates added yet.</li>
+    {% endfor %}
+</ul>
+</div>
 {% endblock %}

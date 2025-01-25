@@ -18,12 +18,22 @@
     <p><strong>Description:</strong> {{project.description}}</p>
     <p><strong>Technologies used:</strong></p>
     <ul>
-        <li><strong>Frontend: </strong>{{project.frontend}}</li>
-        <li><strong>Backend: </strong>{{project.backend}}</li>
-        <li><strong>Database: </strong>{{project.database}}</li>
+        {% if project.frontend %}
+            <li><strong>Frontend: </strong>{{project.frontend}}</li>
+        {% endif %}
+        {% if project.backend %}
+            <li><strong>Backend: </strong>{{project.backend}}</li>
+        {% endif %}
+        {% if project.database %}
+            <li><strong>Database: </strong>{{project.database}}</li>
+        {% endif %}
     </ul>
-    <p><strong>Github: </strong><a href={{project.github}}>{{project.github}}</a></p>
-    <p><strong>Link to live demo: </strong><a href={{project.link_to_live_demo}}>{{project.link_to_live_demo}}</a></p>
+    {% if project.github %}
+        <p><strong>Github: </strong><a href={{project.github}}>{{project.github}}</a></p>
+    {% endif %}
+    {% if project.link_to_live_demo %}
+        <p><strong>Link to live demo: </strong><a href={{project.link_to_live_demo}}>{{project.link_to_live_demo}}</a></p>
+    {% endif %}
 </div>
         
 {% endif %}

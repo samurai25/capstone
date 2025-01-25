@@ -12,9 +12,13 @@
         <p>For any inquiries or requests, please contact me at:</p>
         <div>
             <ul>
-                <li><i class="bi bi-envelope"></i> <a href="mailto:{{ profile.email }}">{{ profile.email }}</a></li>
-                <li><i class="bi bi-phone-fill"></i> {{ profile.phone_number }}</li>
-                <li><i class="bi bi-github"></i> {{profile.github}}</li>
+                <li><i class="bi bi-envelope" id="email"></i> {{ user.email }}</li>
+                {% if profile.github %}
+                    <li><i class="bi bi-github" id="github"></i> {{profile.github}}</li>
+                {% endif %}
+                {% if profile.linkedin %}
+                    <li><i class="bi bi-linkedin" id="linkedin"></i> {{profile.linkedin}}</li>
+                {% endif %}
             </ul>   
         </div>
     </div>

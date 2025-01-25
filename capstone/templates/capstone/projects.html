@@ -201,7 +201,7 @@
             const [filteredProjects, setFilteredProjects] = React.useState(false);
             
             const [currentPage, setCurrentPage] = React.useState(1);
-            const [projectsPerPage] = React.useState(4);
+            const [projectsPerPage] = React.useState(8);
 
 
             React.useEffect(() => {
@@ -219,8 +219,6 @@
 
                 fetchData();
             }, []);
-
-            console.log(projects);
 
 
             const handleSearchClick = async (event) => {

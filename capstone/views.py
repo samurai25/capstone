@@ -4,11 +4,11 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django import forms
-from .models import User, Profile, Project
+from .models import User, Profile, Project, Certificate
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from .forms import ProfileForm, ProjectForm
+from .forms import ProfileForm, ProjectForm, CertificateForm
 
 from django.shortcuts import get_object_or_404
 
@@ -48,11 +48,20 @@ def index(request):
 def about(request, username):
     try:
         user = User.objects.get(username=username)
-        profile = Profile.objects.get(pk=user.id)
+        try:
+            profile = Profile.objects.get(pk=user.id)
+            certificates = Certificate.objects.filter(user=user)
+            certificates_list = list(certificates.values('id', 'url'))
+        except:
+            profile = None
+            certificates_list = []
     except:
         profile = None
         
-    return render(request, 'capstone/about.html', {'profile': profile})
+    return render(request, 'capstone/about.html', {
+        'profile': profile,
+        'certificates': certificates_list
+    })
     
 @login_required
 def projects(request, username):
@@ -128,7 +137,9 @@ def edit_project(request, project_id):
                     project.updated_at = timezone.now()
                     project.save()
 
-                    return redirect('capstone:projects', username=user.username)
+                    # redirect back to edit project page
+                    return redirect('capstone:project', project_id=project_id)
+                    #return redirect('capstone:projects', username=user.username)
             else:
                 form = ProjectForm(instance=project)
         return render(request, 'capstone/edit_project.html', {'form': form, 'project': project})
@@ -138,22 +149,34 @@ def edit_project(request, project_id):
 @login_required   
 def fetch_profile(request):
     user = request.user
+
     if user.is_authenticated:
-        
-        profile = Profile.objects.get(pk=user.id)
-        
+
+        try:
+            profile = Profile.objects.get(pk=user.id)
+        except:
+            profile = Profile.objects.create(user=user)
+            profile.save()
+            
+        certificates = Certificate.objects.filter(user=user)
+        certificates_list = list(certificates.values('id', 'url'))  # Convert QuerySet to list of dictionaries  
+          
         data = {
             'id': profile.id,
             'first_name': profile.first_name,
             'last_name': profile.last_name,
-            'email': profile.email,
+            'role': profile.role,
+            'email': user.email,
             'phone_number': profile.phone_number,
             'github': profile.github,
+            'linkedin': profile.linkedin,
+            'country': profile.country,
             'bio': profile.bio,
             'frontend': profile.frontend,
             'backend': profile.backend,
             'database': profile.database,
-            'profile_picture': str(profile.profile_picture) # convert the File object to a string for JSON serialization
+            'profile_picture': str(profile.profile_picture),
+            'certificates': certificates_list
         }
 
         return JsonResponse(data, safe=False)
@@ -163,28 +186,57 @@ def fetch_profile(request):
 @login_required   
 def edit_profile(request):
     user = request.user
+
+    profile = user.profile 
+    certificates = Certificate.objects.filter(user=user)
+  
     if user.is_authenticated:
-        user_profile = get_object_or_404(Profile, user=request.user)
+        profile = get_object_or_404(Profile, user=request.user)
         if request.method == 'POST':
-            form = ProfileForm(request.POST, request.FILES, instance=user_profile)
-            if form.is_valid():
+            form = ProfileForm(request.POST, request.FILES, instance=profile)
+            
+            if 'save_profile' in request.POST and form.is_valid():
                 profile = form.save(commit=False)
                 profile.first_name = form.cleaned_data['first_name']
                 profile.last_name = form.cleaned_data['last_name']
+                profile.role = form.cleaned_data['role']
                 profile.bio = form.cleaned_data['bio']
                 profile.frontend = form.cleaned_data['frontend']
                 profile.backend = form.cleaned_data['backend']
                 profile.database = form.cleaned_data['database']
                 profile.phone_number = form.cleaned_data['phone_number']
-                profile.email = user_profile.email
                 profile.github = form.cleaned_data['github']
+                profile.linkedin = form.cleaned_data['linkedin']
+                profile.country = form.cleaned_data['country']
                 profile.profile_picture = form.cleaned_data['profile_picture']
                 profile.save()
+                
                 return redirect('capstone:profile')
+            
+            certificate_form = CertificateForm(request.POST)
+            if 'add_certificate' in request.POST and certificate_form.is_valid():
+                certificate = certificate_form.save(commit=False)
+                certificate.user = user
+                certificate.url = certificate_form.cleaned_data['url']
+                certificate.save()
+                
+                return redirect('capstone:edit_profile')
+            
+            if 'delete_certificate' in request.POST:
+                certificate_id = request.POST.get('certificate_id')
+                Certificate.objects.filter(id=certificate_id, user=user).delete()
+                return redirect('capstone:edit_profile')
+            
         else:
-            form = ProfileForm(instance=user_profile)
+            form = ProfileForm(instance=profile)
+            certificate_form = CertificateForm()
         
-        return render(request, 'capstone/edit_profile.html', {'form': form})
+        return render(request, 'capstone/edit_profile.html', {
+            'form': form,
+            'certificate_form': certificate_form,
+            'certificates': certificates,
+            
+            })
     else:
         return render(request, 'capstone/error.html')
 
