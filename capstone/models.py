@@ -6,8 +6,13 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
+    first_name = models.CharField(max_length=30, null=True, blank=True)
+    last_name = models.CharField(max_length=30, null=True, blank=True)
+    email = models.EmailField(max_length=255, unique=True)
     last_login = models.DateTimeField(null=True, blank=True)
     is_superuser = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class Profile(models.Model):
@@ -34,6 +39,8 @@ class Profile(models.Model):
     profile_picture = models.ImageField(upload_to="images/", 
                                         blank=True, null=True, 
                                         verbose_name="image")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     
     def __str__(self):
