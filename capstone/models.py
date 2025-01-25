@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    pass
+    last_login = models.DateTimeField(null=True, blank=True)
 
 
 class Profile(models.Model):
