@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     last_login = models.DateTimeField(null=True, blank=True)
+    is_superuser = models.BooleanField(default=False)
 
 
 class Profile(models.Model):
