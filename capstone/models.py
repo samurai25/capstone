@@ -6,15 +6,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=150, unique=True)
-    first_name = models.CharField(max_length=30, null=True, blank=True)
-    last_name = models.CharField(max_length=30, null=True, blank=True)
-    email = models.EmailField(max_length=255, unique=True)
-    last_login = models.DateTimeField(null=True, blank=True)
-    is_superuser = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_staff = models.BooleanField(default=False)
+    pass
 
 
 class Profile(models.Model):
