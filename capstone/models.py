@@ -39,6 +39,8 @@ class Profile(models.Model):
     
     def __str__(self):
         return self.user.username
+    
+    
 
     
 
@@ -58,12 +60,11 @@ class Project(models.Model):
     def __str__(self):
         return self.title
     
-    
+   
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="certificates")
     url = models.URLField(max_length=500)
 
     def __str__(self):
         return self.url
-    
    
