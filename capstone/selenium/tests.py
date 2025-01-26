@@ -27,7 +27,7 @@ class WebpageTests(unittest.TestCase):
         username = driver.find_element(By.NAME, "username")
         password = driver.find_element(By.NAME, "password")
         username.send_keys("testuser")
-        password.send_keys("testpassword123")
+        password.send_keys("Hnv32.&czY@")
         driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
         self.assertEqual(driver.find_element(By.TAG_NAME, "h2").text, "Hello, testuser!")
         
@@ -114,11 +114,10 @@ class WebpageTests(unittest.TestCase):
         driver.find_element(By.NAME, "first_name").click()
         driver.find_element(By.NAME, "first_name").clear()
         driver.find_element(By.NAME, "first_name").send_keys("Selenium Test")
-        driver.find_element(By.ID, "id_role").click()
-        wait = WebDriverWait(driver, 10) 
-        button = wait.until(EC.element_to_be_clickable((By.ID, 'save_profile')))
-        button.click()
+        driver.find_element(By.ID, "save_profile").click()
         self.assertEqual(driver.find_element(By.ID, "first_name").text, "Selenium Test")
+   
+        
        
         
 if __name__ == "__main__":
