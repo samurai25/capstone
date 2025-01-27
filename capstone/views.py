@@ -9,8 +9,9 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from .forms import ProfileForm, ProjectForm, CertificateForm
-
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache 
+
 
 
 class RegistrationForm(UserCreationForm):
@@ -87,7 +88,13 @@ def profile(request):
 def projects_fetch(request):
     user = request.user
     if user.is_authenticated:
-        projects = Project.objects.filter(user=user).all().values().order_by('-created_at')
+        projects = cache.get('projects')
+        if not projects:
+            projects = Project.objects.filter(user=user).all().values().order_by('-created_at')
+            cache.set('projects', list(projects), 60)  # Cache for 60 seconds
+        else:
+            projects = cache.get('projects')
+        
     
         return JsonResponse(list(projects), safe=False)
     else:
@@ -101,6 +108,8 @@ def delete_project(request):
         project_id = data['project_id']
         project = Project.objects.get(id=project_id)
         project.delete()
+        
+        cache.delete('projects')  # Delete cache when a new project is added or updated
         
         username = request.user.username
         
@@ -133,13 +142,19 @@ def edit_project(request, project_id):
                     project.database = form.cleaned_data['database']
                     project.github = form.cleaned_data['github']
                     project.link_to_live_demo = form.cleaned_data['link_to_live_demo']
-                    project.image = form.cleaned_data['image']
+                    
+                    if 'image-clear' in request.POST:
+                        project.image.delete(save=False)
+                        project.image = None 
+                    elif 'image' in request.FILES:
+                        project.image = form.cleaned_data['image']
+                    
                     project.updated_at = timezone.now()
                     project.save()
-
+                    cache.delete('projects')  # Delete cache when a new project is added or updated
                     # redirect back to edit project page
                     return redirect('capstone:project', project_id=project_id)
-                    #return redirect('capstone:projects', username=user.username)
+                    
             else:
                 form = ProjectForm(instance=project)
         return render(request, 'capstone/edit_project.html', {'form': form, 'project': project})
@@ -153,10 +168,15 @@ def fetch_profile(request):
     if user.is_authenticated:
 
         try:
-            profile = Profile.objects.get(pk=user.id)
+            # Cache the profile data to improve performance and reduce database load
+            profile = cache.get('profile')
+            if not profile:
+                profile = Profile.objects.get(pk=user.id)
+                cache.set('profile', profile, 60)  # Cache for 60 seconds
         except:
             profile = Profile.objects.create(user=user)
             profile.save()
+            cache.set('profile', profile, 60)  # Cache for 60 seconds
             
         certificates = Certificate.objects.filter(user=user)
         certificates_list = list(certificates.values('id', 'url'))  # Convert QuerySet to list of dictionaries  
@@ -208,9 +228,15 @@ def edit_profile(request):
                 profile.github = form.cleaned_data['github']
                 profile.linkedin = form.cleaned_data['linkedin']
                 profile.country = form.cleaned_data['country']
-                profile.profile_picture = form.cleaned_data['profile_picture']
-                profile.save()
                 
+                if 'image-clear' in request.POST:
+                    profile.profile_picture.delete(save=False)
+                    profile.profile_picture = None 
+                elif 'profile_picture' in request.FILES:
+                    profile.profile_picture = form.cleaned_data['profile_picture']
+                    
+                profile.save()
+                cache.delete('profile') # Delete cache when the profile is edited
                 return redirect('capstone:profile')
             
             certificate_form = CertificateForm(request.POST)
@@ -260,6 +286,7 @@ def add_project(request):
                             )
                 
                 project.save()
+                cache.delete('projects')  # Delete cache when a new project is added or updated
                 return redirect('capstone:projects', username=user.username)
         else:
             form = ProjectForm()
