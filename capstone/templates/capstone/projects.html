@@ -82,7 +82,9 @@
             const postData = async (id) => {
 
                 try {
-                    const response = await fetch('http://127.0.0.1:8000/delete_project/', {
+                    const baseUrl = window.location.hostname === "localhost" ? "http://localhost:8000" : "http://127.0.0.1:8000";
+
+                    const response = await fetch(`${baseUrl}/delete_project/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
