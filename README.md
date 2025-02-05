@@ -74,6 +74,35 @@ The application should be deployable on platforms like Heroku or DigitalOcean wi
 
 
 ## File Description
+- capstone/.github/workflows/: Defines a GitHub Actions workflow for testing the application. Sets up Python, installs dependencies, and runs tests on push and pull request.
+    ```yaml
+    name: Testing
+    on: [push, pull_request]
+
+    jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+            python-version: '3.x'
+
+        - name: Install dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install django
+            pip install python-dotenv
+            pip install django-cors-headers
+            pip install Pillow
+
+        - name: Run tests
+        run: |
+            python manage.py test
+
 - capstone/capstone/templates/
     - **capstone**: a folder containing templates.
     - **registration**: a folder containing templates for registration.
