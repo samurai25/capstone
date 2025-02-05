@@ -165,6 +165,7 @@ LOGIN_REDIRECT_URL = '/'
 
 
 # CACHING CONFIGURATION
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',

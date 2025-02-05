@@ -41,9 +41,6 @@ class Profile(models.Model):
         return self.user.username
     
     
-
-    
-
 class Project(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects")
     title = models.CharField(max_length=100)

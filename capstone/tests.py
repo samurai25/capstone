@@ -21,8 +21,7 @@ class ProjectTestCase(TestCase):
     def test_project(self):
         project = Project.objects.get(user=self.user)
         self.assertEqual(project.title, 'My Project')
-        
-        
+            
 
 class ViewsTestCase(TestCase):
     def setUp(self):
